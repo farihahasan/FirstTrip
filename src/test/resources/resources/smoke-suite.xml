@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Smoke Suite">
+    <groups>
+        <run>
+            <include name="smoke"/>
+        </run>
+    </groups>
+    <test name="Global Area Test">
+        <packages>
+            <package name="com.firsttrip.web"/>
+        </packages>
+    </test>
+</suite>
