@@ -1,5 +1,6 @@
 package com.firsttrip.web.pages;
 
+import com.firsttrip.web.components.DatePicker;
 import com.firsttrip.web.components.Topbar;
 import com.microsoft.playwright.Page;
 
@@ -35,4 +36,5 @@ public abstract class BasePage {
     public Topbar getTopbar() {
         return new Topbar(page.locator("#header"));
     }
+
 }

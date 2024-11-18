@@ -1,5 +1,6 @@
 package com.firsttrip.web.pages;
 
+import com.firsttrip.web.components.DatePicker;
 import com.firsttrip.web.components.ReactDatePicker;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
