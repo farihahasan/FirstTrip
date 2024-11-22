@@ -1,12 +1,8 @@
 package com.firsttrip.web;
-
 import com.firsttrip.web.pages.FlightPage;
 import com.firsttrip.web.pages.HomePage;
-import com.microsoft.playwright.options.LoadState;
 import org.testng.annotations.Test;
-
 import java.util.Random;
-
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class FlightTest extends BaseTest {
@@ -100,6 +96,58 @@ public class FlightTest extends BaseTest {
                 .clickTravellerToVerify();
         assertThat(flightPage.verifyAdultTravellerCount()).hasText("1");
         assertThat(flightPage.verifyChildTravellerCount()).hasText("1");
+        assertThat(flightPage.getPremiumEconomyClassLocator()).isVisible();
+        try {
+            assertThat(flightPage.getNoFlightsFoundText()).isVisible();
+        } catch (AssertionError e) {
+            assertThat(flightPage.getFlightsCountLocator()).isVisible();
+            flightPage
+                    .clickViewDetails();
+            assertThat(flightPage.getDepartureAndDestinationLocator(Departure, Destination)).isVisible();
+        }
+    }
+
+    @Test
+    public void verifyRoundTripFlightSearchForFirstClassWith1Adult2ChildOf2To4And5To11Years1InfantShouldSucceed() {
+        String Date = "20";
+        String returnDate = "25";
+        String Departure = "DAC";
+        String Destination = "CXB";
+        FlightPage.BookingClass bookingClass = FlightPage.BookingClass.FIRST_CLASS;
+        Random random = new Random();
+        int[] randomChildAges = {random.nextInt(2, 5), random.nextInt(5, 12)};
+
+        FlightPage flightPage = goTo(new FlightPage(page));
+        flightPage
+                .clickFlight()
+                .selectRoundTrip()
+                .selectFromAirport("DAC")
+                .selectToAirport("CXB");
+
+        HomePage homePage = new HomePage(page);
+        homePage
+                .clickDepartureDate()
+                .clickNextMonth()
+                .selectDate(Date);
+        homePage
+                .clickReturnDate()
+                .selectDate(returnDate);
+
+        flightPage
+                .clickTravellerClass()
+                .addMultipleChildrenWithAges(randomChildAges)
+                .selectInfantsFromTravelers()
+                .selectBookingClass(bookingClass)
+                .clickSearchButton();
+
+        assertThat(flightPage.getFirstClassLocator()).isVisible();
+        System.out.println(flightPage.verifyTotalTravellersForRoundTripCount());
+        assertThat(flightPage.verifyTotalTravellersForRoundTripCount()).hasText("4 Travellers");
+        flightPage
+                .clickTravellerToVerify();
+        assertThat(flightPage.verifyAdultTravellerCount()).hasText("1");
+        assertThat(flightPage.verifyChildTravellerCount()).hasText("2");
+        assertThat(flightPage.verifyInfantTravellerCount()).hasText("1");
         assertThat(flightPage.getPremiumEconomyClassLocator()).isVisible();
         try {
             assertThat(flightPage.getNoFlightsFoundText()).isVisible();

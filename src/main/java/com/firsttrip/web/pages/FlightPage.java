@@ -44,10 +44,6 @@ public class FlightPage extends BasePage {
         return this;
     }
 
-    public Locator getDestinationAirportLocator() {
-        return page.locator("div.relative.col-span-1 .text-brand-7.md\\:truncate").first();
-    }
-
     public FlightPage selectFromAirport(String departure) {
         Locator fromAirport = page.getByTestId("airport-city-input").first();
         fromAirport.click();
@@ -61,22 +57,6 @@ public class FlightPage extends BasePage {
         fromAirport.click();
         fromAirport.fill(departure);
         page.getByText(departure).nth(0).click();
-    }
-
-    public Locator getDepartureDateLocator() {
-        return page.locator("div.col-span-1 .text-brand-7").first();
-    }
-
-    public Locator getAdultLocator() {
-        return page.locator("div.space-y-4 .col-span-2.text-brand-8").nth(0);
-    }
-
-    public Locator getChildLocator() {
-        return page.locator("div.space-y-4 .col-span-2.text-brand-8").nth(1);
-    }
-
-    public Locator getInfantLocator() {
-        return page.locator("div.space-y-4 .col-span-2.text-brand-8").nth(2);
     }
 
     public FlightPage clickTravellerClass() {
@@ -125,6 +105,10 @@ public class FlightPage extends BasePage {
         return page.getByText("Round Trip").first();
     }
 
+    public Locator getFirstClassLocator() {
+        return page.getByText("First Class").first();
+    }
+
     public Locator verifyTotalTravellersForOneWayCount() {
         return page.locator(".font-medium.text-brand-8").nth(3);
     }
@@ -159,6 +143,15 @@ public class FlightPage extends BasePage {
 
     public Locator getFlightsCountLocator() {
         return page.locator(".flex.items-center.gap-4.text-brand-8");
+    }
+
+    public FlightPage addMultipleChildrenWithAges(int[] childAges) {
+        for (int i = 0; i < childAges.length; i++) {
+            selectChildFromTravelers();
+            page.locator(".cursor-pointer.rounded-md").nth(i).click();
+            selectChildAge(childAges[i]);
+        }
+        return this;
     }
 
     public Locator getDepartureAndDestinationLocator(String Departure, String Destination) {
