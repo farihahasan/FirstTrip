@@ -1,55 +1,113 @@
 package com.firsttrip.web;
 
 import com.firsttrip.web.pages.FlightPage;
+import com.firsttrip.web.pages.HomePage;
 import com.microsoft.playwright.options.LoadState;
 import org.testng.annotations.Test;
-
 
 import java.util.Random;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-public class FlightTest extends BaseTest{
+public class FlightTest extends BaseTest {
     @Test
-    public void verifyOneWayFlightSearchForBusinessClassWith1Adult1ChildOf5_11YAnd1InfantShouldSucceed(){
-        FlightPage flightPage =goTo(new FlightPage(page));
+    public void verifyOneWayFlightSearchForBusinessClassWith1Adult1Child5To11Years1InfantShouldSucceed() {
         String Date = "22";
+        String Departure = "DAC";
+        String Destination = "CXB";
+        FlightPage.BookingClass bookingClass = FlightPage.BookingClass.BUSINESS;
+        Random random = new Random();
+        int randomChildAge = random.nextInt(5, 12);
+
+        FlightPage flightPage = goTo(new FlightPage(page));
         flightPage
                 .clickFlight()
                 .selectOneWay()
                 .selectFromAirport("DAC")
                 .selectToAirport("CXB");
-        flightPage
+
+        HomePage homePage = new HomePage(page);
+        homePage
                 .clickDepartureDate()
                 .clickNextMonth()
                 .selectDate(Date);
 
         flightPage
                 .clickTravellerClass()
-                .selectChildFromTravelers();
-        Random random = new Random();
-        int randomChildAge = random.nextInt(5,11);
-        System.out.println("childAges:" + randomChildAge);
-        flightPage
+                .selectChildFromTravelers()
                 .chooseChildAge()
                 .selectChildAge(randomChildAge)
                 .selectInfantsFromTravelers()
-                .selectBusinessClass()
+                .selectBookingClass(bookingClass)
                 .clickSearchButton();
 
         assertThat(flightPage.getOneWayLocator()).isVisible();
+        assertThat(flightPage.verifyTotalTravellersForOneWayCount()).hasText("3 Travellers");
+        flightPage
+                .clickTravellerToVerify();
+        assertThat(flightPage.verifyAdultTravellerCount()).hasText("1");
+        assertThat(flightPage.verifyChildTravellerCount()).hasText("1");
+        assertThat(flightPage.verifyInfantTravellerCount()).hasText("1");
         assertThat(flightPage.getBusinessClassLocator()).isVisible();
-        this.page.waitForLoadState(LoadState.NETWORKIDLE);
-        if (flightPage.getNoFlightsLocator().isVisible()) {
-            assertThat(flightPage.getNoFlightsLocator()).isVisible();
-            System.out.println("No flights found.");
-        } else {
-            System.out.println("Flights are available.");
-            String flightSummary = flightPage.getFlightsCountLocator().textContent();
-            System.out.println("Flight search successful! Summary of the Flight: " + flightSummary);
+        try {
+            assertThat(flightPage.getNoFlightsFoundText()).isVisible();
+        } catch (AssertionError e) {
             assertThat(flightPage.getFlightsCountLocator()).isVisible();
+            flightPage
+                    .clickViewDetails();
+            assertThat(flightPage.getDepartureAndDestinationLocator(Departure, Destination)).isVisible();
         }
+    }
 
+    @Test
+    public void verifyRoundTripFlightSearchForPremiumEconomyClassWith1Adult1ChildOf5To11YearsShouldSucceed() {
+        String Date = "20";
+        String returnDate = "25";
+        String Departure = "DAC";
+        String Destination = "CXB";
+        FlightPage.BookingClass bookingClass = FlightPage.BookingClass.PREMIUM_ECONOMY;
+        Random random = new Random();
+        int randomChildAge = random.nextInt(5, 12);
+
+        FlightPage flightPage = goTo(new FlightPage(page));
+        flightPage
+                .clickFlight()
+                .selectRoundTrip()
+                .selectFromAirport("DAC")
+                .selectToAirport("CXB");
+
+        HomePage homePage = new HomePage(page);
+        homePage
+                .clickDepartureDate()
+                .clickNextMonth()
+                .selectDate(Date);
+        homePage
+                .clickReturnDate()
+                .selectDate(returnDate);
+
+        flightPage
+                .clickTravellerClass()
+                .selectChildFromTravelers()
+                .chooseChildAge()
+                .selectChildAge(randomChildAge)
+                .selectBookingClass(bookingClass)
+                .clickSearchButton();
+
+        assertThat(flightPage.getRoundTripLocator()).isVisible();
+        System.out.println(flightPage.verifyTotalTravellersForRoundTripCount());
+        assertThat(flightPage.verifyTotalTravellersForRoundTripCount()).hasText("2 Travellers");
+        flightPage
+                .clickTravellerToVerify();
+        assertThat(flightPage.verifyAdultTravellerCount()).hasText("1");
+        assertThat(flightPage.verifyChildTravellerCount()).hasText("1");
+        assertThat(flightPage.getPremiumEconomyClassLocator()).isVisible();
+        try {
+            assertThat(flightPage.getNoFlightsFoundText()).isVisible();
+        } catch (AssertionError e) {
+            assertThat(flightPage.getFlightsCountLocator()).isVisible();
+            flightPage
+                    .clickViewDetails();
+            assertThat(flightPage.getDepartureAndDestinationLocator(Departure, Destination)).isVisible();
         }
+    }
 }
-
